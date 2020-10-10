@@ -1,5 +1,7 @@
+//Controller 
 import express from 'express';
 import Data from '../models/dataSchema';
+import dataValidate from '../models/dataJoi';
 
 export function getdata(req: express.Request, res: express.Response , next: express.NextFunction) {
     Data.find() 
@@ -13,6 +15,14 @@ export function getdata(req: express.Request, res: express.Response , next: expr
 }
 
 export function postdata(req: express.Request ,res: express.Response, next: express.NextFunction){
+    let data = dataValidate.validate(req.body);
+    
+    if(data.error){
+        res.statusCode = 400;
+        res.send(data.error.details[0].message);
+        return ;
+    }
+
     Data.create(req.body)
     .then((data) => {
         res.statusCode = 200;
@@ -20,6 +30,7 @@ export function postdata(req: express.Request ,res: express.Response, next: expr
         res.json(data);
     }, (err) => next(err))
     .catch((err) => next(err));
+
 }
 
 export function deletedata(req: express.Request ,res: express.Response ,next: express.NextFunction) {
@@ -43,3 +54,4 @@ export function putdata(req: express.Request, res: express.Response ,next: expre
     }, (err) => next(err))
     .catch((err) => console.log(err));  
 }
+
